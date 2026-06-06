@@ -1,0 +1,127 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: matrix-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: matrix_cloud
+      MYSQL_USER: matrix
+      MYSQL_PASSWORD: matrix123456
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - matrix-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: matrix-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass redis123456
+    networks:
+      - matrix-network
+    restart: unless-stopped
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: matrix-livekit
+    ports:
+      - target: 7880
+        published: 7880
+        protocol: tcp
+        mode: host
+      - target: 7881
+        published: 7881
+        protocol: tcp
+        mode: host
+      - target: 7882
+        published: 7882
+        protocol: udp
+        mode: host
+      - target: 50000
+        published: 50000
+        protocol: udp
+        mode: host
+      - target: 50001
+        published: 50001
+        protocol: udp
+        mode: host
+      - target: 50002
+        published: 50002
+        protocol: udp
+        mode: host
+      - target: 50003
+        published: 50003
+        protocol: udp
+        mode: host
+      - target: 50004
+        published: 50004
+        protocol: udp
+        mode: host
+      - target: 50005
+        published: 50005
+        protocol: udp
+        mode: host
+      - target: 50006
+        published: 50006
+        protocol: udp
+        mode: host
+      - target: 50007
+        published: 50007
+        protocol: udp
+        mode: host
+      - target: 50008
+        published: 50008
+        protocol: udp
+        mode: host
+      - target: 50009
+        published: 50009
+        protocol: udp
+        mode: host
+      - target: 50010
+        published: 50010
+        protocol: udp
+        mode: host
+    volumes:
+      - ./livekit/config.yaml:/etc/livekit.yaml
+    command: --config /etc/livekit.yaml
+    networks:
+      - matrix-network
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: matrix-minio
+    ports:
+      - "9870:9870"
+      - "9871:9871"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    command: server /data --address ":9870" --console-address ":9871"
+    networks:
+      - matrix-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+  minio_data:
+
+networks:
+  matrix-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          gateway: 172.30.0.1

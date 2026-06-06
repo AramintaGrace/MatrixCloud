@@ -1,0 +1,22 @@
+port: 7880
+rtc:
+  port_range_start: 50000
+  port_range_end: 50010
+  use_external_ip: false
+  node_ip: 172.17.27.24
+  tcp_port: 7881
+
+redis:
+  address: matrix-redis:6379
+  password: redis123456
+
+keys:
+  APIKey1: secret12345678901234567890123456
+
+room:
+  auto_create: true
+  empty_timeout: 300
+  max_participants: 100
+
+logging:
+  level: info
